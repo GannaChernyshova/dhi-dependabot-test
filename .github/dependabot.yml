@@ -5,7 +5,7 @@ registries:
   # Add these as repo/org secrets: Settings > Secrets and variables > Dependabot.
   dhi-dockerhub:
     type: docker-registry
-    url: https://registry-1.docker.io
+    url: https://registry.hub.docker.com
     username: ${{secrets.DHI_DOCKERHUB_USERNAME}}
     password: ${{secrets.DHI_DOCKERHUB_TOKEN}}
 
