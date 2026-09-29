@@ -1,0 +1,10 @@
+{
+  "name": "dhi-dependabot-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimal app for testing Dependabot digest updates against a Docker Hardened Image (DHI) base",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

@@ -1,0 +1,18 @@
+version: 2
+
+registries:
+  # Docker Hub credentials with entitlement to pull DHI images.
+  # Add these as repo/org secrets: Settings > Secrets and variables > Dependabot.
+  dhi-dockerhub:
+    type: docker-registry
+    url: https://registry-1.docker.io
+    username: ${{secrets.DHI_DOCKERHUB_USERNAME}}
+    password: ${{secrets.DHI_DOCKERHUB_TOKEN}}
+
+updates:
+  - package-ecosystem: "docker"
+    directory: "/"
+    registries:
+      - dhi-dockerhub
+    schedule:
+      interval: "daily"
