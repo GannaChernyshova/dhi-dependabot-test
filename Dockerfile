@@ -1,13 +1,10 @@
 # syntax=docker/dockerfile:1
 
-# Replace REPLACE_NAMESPACE and the digest below with your real DHI Node image
-# reference — get it with:
-#   docker pull REPLACE_NAMESPACE/dhi-node:22
-#   docker inspect --format='{{index .RepoDigests 0}}' REPLACE_NAMESPACE/dhi-node:22
-FROM REPLACE_NAMESPACE/dhi-node:22@sha256:REPLACE_WITH_REAL_DIGEST
+# Dependabot keeps the tag and the pinned digest below up to date.
+FROM demonstrationorg/dhi-node:26-debian13@sha256:29d425d096403cca2750ee83fa31e4a6f25a73ea78089382578053d1682afaff
 
 WORKDIR /app
 COPY package.json server.js ./
 
 EXPOSE 3000
-CMD ["server.js"]
+CMD ["node", "server.js"]
