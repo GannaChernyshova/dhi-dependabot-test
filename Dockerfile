@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Dependabot keeps the tag and the pinned digest below up to date.
-FROM demonstrationorg/dhi-node:26-debian13@sha256:29d425d096403cca2750ee83fa31e4a6f25a73ea78089382578053d1682afaff
+FROM demonstrationorg/dhi-node:26-debian13-sfw-ent-dev@sha256:98f3891bc3a3125f48489ba13d624b1607c7293eb26245d15c5f543c64189e35
 
 WORKDIR /app
 COPY package.json server.js ./
