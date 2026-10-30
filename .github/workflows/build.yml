@@ -1,0 +1,37 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # DHI images need an entitled Docker Hub account to pull.
+      # Dependabot PRs only see Dependabot secrets, so add these under both
+      # Settings > Secrets and variables > Actions and > Dependabot.
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DHI_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DHI_DOCKERHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: dhi-dependabot-test:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test
+        run: docker run --rm dhi-dependabot-test:ci curl --version
