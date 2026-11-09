@@ -10,8 +10,10 @@ on:
 
 env:
   DHICTL_VERSION: v0.0.13
-  DHI_ORG: demonstrationorg
   DHI_NO_UPDATE_NOTIFIER: "1"
+  # Repository variables: Settings > Secrets and variables > Actions > Variables
+  DHI_ORG: ${{ vars.DHI_ORG }}
+  DHI_CUSTOMIZATION_ID: ${{ vars.DHI_CUSTOMIZATION_ID }}
 
 jobs:
   update-customization:
@@ -20,16 +22,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.2
 
-      - name: Show effective customization/customization.yaml
-        run: cat customization/customization.yaml
+      - name: Render customization/customization.yaml
+        run: |
+          : "${DHI_ORG:?Set the DHI_ORG repository variable}"
+          : "${DHI_CUSTOMIZATION_ID:?Set the DHI_CUSTOMIZATION_ID repository variable}"
+          envsubst '$DHI_ORG $DHI_CUSTOMIZATION_ID' \
+            < customization/customization.yaml > "$RUNNER_TEMP/customization.yaml"
+          cat "$RUNNER_TEMP/customization.yaml"
 
       - name: Install dhictl
         run: |
           curl -fsSL "https://github.com/docker-hardened-images/dhictl/releases/download/${DHICTL_VERSION}/dhictl-linux-amd64" -o /usr/local/bin/dhictl
           chmod +x /usr/local/bin/dhictl
 
-      # Uses the id in the yaml to pick the customization to update.
+      # Uses the id in the rendered yaml to pick the customization to update.
       - name: Update DHI customization
-        run: dhictl customization edit --org "$DHI_ORG" customization/customization.yaml
+        run: dhictl customization edit --org "$DHI_ORG" "$RUNNER_TEMP/customization.yaml"
         env:
           DHI_API_TOKEN: ${{ secrets.DHI_DOCKERHUB_TOKEN }}

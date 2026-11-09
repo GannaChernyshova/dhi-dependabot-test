@@ -41,6 +41,13 @@ the Dependabot store.
 | `DHI_DOCKERHUB_USERNAME` | Docker Hub user with access to `your_DHI_org` |
 | `DHI_DOCKERHUB_TOKEN` | Access token for that user, also used as `DHI_API_TOKEN` |
 
+Also add these repository **variables** (same page, Variables tab):
+
+| Variable | Value |
+| --- | --- |
+| `DHI_ORG` | Docker Hub org that holds the DHI mirror, e.g. `demonstrationorg` |
+| `DHI_CUSTOMIZATION_ID` | Customization id, e.g. `cz_08j7wqirdnx2k` |
+
 ## 2. Compare DOI and DHI
 
 | Dockerfile | Build stage | Runtime stage |
@@ -69,16 +76,19 @@ To see DHI's own assessment, scan the base image from the registry:
 docker buildx build --provenance=true --sbom=true -f customization/Dockerfile -t demo-node:customized .
 ```
 
-To change the customization, edit the yaml and keep the `id:` line, which `dhictl` uses to find it. Then either
+The yaml is a template: the Hub org (`DHI_ORG`) and the customization id (`DHI_CUSTOMIZATION_ID`) come from
+environment variables locally and from repository variables in CI. To change the customization, edit the yaml, then either
 merge to `main` or run:
 
 ```bash
+export DHI_ORG=demonstrationorg DHI_CUSTOMIZATION_ID=cz_08j7wqirdnx2k
 export DHI_API_TOKEN=<Docker Hub access token>
-dhictl customization edit --org demonstrationorg customization/customization.yaml
-dhictl customization build list --org demonstrationorg cz_08j7wqirdnx2k
+envsubst '$DHI_ORG $DHI_CUSTOMIZATION_ID' < customization/customization.yaml > /tmp/customization.yaml
+dhictl customization edit --org "$DHI_ORG" /tmp/customization.yaml
+dhictl customization build list --org "$DHI_ORG" "$DHI_CUSTOMIZATION_ID"
 ```
 
 | Workflow | Trigger | Action |
 | --- | --- | --- |
 | DHI Customization Edit | push to `main` changing the yaml, or manual | `dhictl customization edit` |
-| DHI Customization Recreate | manual | deletes the customization, creates it again, commits the new `id` |
+| DHI Customization Recreate | manual | deletes the customization, creates it again, prints the new id; set it as `DHI_CUSTOMIZATION_ID` |
