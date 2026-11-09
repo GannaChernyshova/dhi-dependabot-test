@@ -4,7 +4,7 @@
 # already installed, so there is no apk step.
 
 # ---- build stage --------------------------------------------------------
-FROM demonstrationorg/dhi-node-anna:26-alpine-dev_tools@sha256:6163d755e4774635b266d8bb1f15e8d747f62ec141a0643729c428a60b03bccd AS build
+FROM demonstrationorg/dhi-node-anna:26-alpine-dev_tools@sha256:41e6400dd442d6cc5472dad59fe173b7153bd1827605c82aeabfa958256caa52 AS build
 
 WORKDIR /app
 COPY --chmod=644 app/package.json ./
