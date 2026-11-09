@@ -42,3 +42,48 @@ jobs:
 
       - name: Smoke test
         run: docker run --rm demo-node:${{ matrix.tag }} node --version
+
+  compare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # to post the Scout comparison on PRs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DHI_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DHI_DOCKERHUB_TOKEN }}
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build DOI image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: doi/Dockerfile
+          load: true
+          tags: demo-node:doi
+          cache-from: type=gha,scope=doi
+
+      - name: Build DHI image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: dhi/Dockerfile
+          load: true
+          tags: demo-node:dhi
+          cache-from: type=gha,scope=dhi
+
+      - name: Analyze and compare DOI and DHI images
+        uses: docker/scout-action@v1
+        with:
+          command: compare
+          image: local://demo-node:dhi
+          to: local://demo-node:doi
+          dockerhub-user: ${{ secrets.DHI_DOCKERHUB_USERNAME }}
+          dockerhub-password: ${{ secrets.DHI_DOCKERHUB_TOKEN }}
+          # Comment only on PRs; Dependabot PRs get a read-only token.
+          write-comment: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
