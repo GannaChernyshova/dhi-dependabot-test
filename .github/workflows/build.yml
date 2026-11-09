@@ -10,6 +10,13 @@ permissions:
 jobs:
   build-image:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { dir: doi, tag: doi }
+          - { dir: dhi, tag: dhi }
+          - { dir: customization, tag: customized }
     steps:
       - uses: actions/checkout@v4
 
@@ -26,11 +33,12 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: .
+          file: ${{ matrix.dir }}/Dockerfile
           push: false
           load: true
-          tags: dhi-dependabot-test:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: demo-node:${{ matrix.tag }}
+          cache-from: type=gha,scope=${{ matrix.tag }}
+          cache-to: type=gha,scope=${{ matrix.tag }},mode=max
 
       - name: Smoke test
-        run: docker run --rm dhi-dependabot-test:ci curl --version
+        run: docker run --rm demo-node:${{ matrix.tag }} node --version

@@ -11,7 +11,9 @@ registries:
 
 updates:
   - package-ecosystem: "docker"
-    directory: "/"
+    directories:
+      - "/dhi"
+      - "/customization"
     registries:
       - dhi-dockerhub
     schedule:

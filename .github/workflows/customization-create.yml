@@ -1,0 +1,63 @@
+name: DHI Customization Recreate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DHICTL_VERSION: v0.0.13
+  DHI_ORG: demonstrationorg
+  DHI_NO_UPDATE_NOTIFIER: "1"
+
+jobs:
+  recreate-customization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      - name: Install dhictl
+        run: |
+          curl -fsSL "https://github.com/docker-hardened-images/dhictl/releases/download/${DHICTL_VERSION}/dhictl-linux-amd64" -o /usr/local/bin/dhictl
+          chmod +x /usr/local/bin/dhictl
+
+      # Deletes the customization whose id is in the yaml (if any), creates it
+      # again, and writes the new id back.
+      - name: Recreate customization
+        run: |
+          OLD_ID=$(sed -n 's/^id:[[:space:]]*//p' customization/customization.yaml)
+          if [ -n "$OLD_ID" ]; then
+            dhictl customization delete --org "$DHI_ORG" "$OLD_ID" --force \
+              || echo "Could not delete $OLD_ID, continuing..."
+          fi
+
+          # Create from a copy without the old id.
+          sed '/^id:/d' customization/customization.yaml > /tmp/customization.yaml
+          OUT=$(dhictl customization create --org "$DHI_ORG" /tmp/customization.yaml)
+          echo "$OUT"
+
+          # Output: Successfully created customization 'tools' (ID: cz_...)
+          ID=$(echo "$OUT" | sed -n 's/.*(ID: \([^)]*\)).*/\1/p')
+          if [ -z "$ID" ]; then
+            echo "Error: could not read the customization ID from the create output"
+            exit 1
+          fi
+          echo "Customization ID: $ID"
+
+          if grep -q "^id:" customization/customization.yaml; then
+            sed -i "s/^id:.*/id: $ID/" customization/customization.yaml
+          else
+            sed -i "/^name:/a id: $ID" customization/customization.yaml
+          fi
+        env:
+          DHI_API_TOKEN: ${{ secrets.DHI_DOCKERHUB_TOKEN }}
+
+      - name: Commit updated customization.yaml
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add customization/customization.yaml
+          git commit -m "chore: update customization ID after recreate"
+          git push
