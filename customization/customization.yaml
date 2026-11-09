@@ -1,0 +1,36 @@
+# Docker Hardened Images - Customization
+# dhi/node 26-alpine3.24-dev - dev variant with curl and wget
+#
+# Based on `dhictl customization prepare --org demonstrationorg node 26 ...` output.
+# Tags created from this customization get the suffix _tools,
+# e.g. demonstrationorg/dhi-node-anna:26-alpine-dev_tools
+
+name: tools
+id: cz_08j7wqirdnx2k
+
+targets:
+  - destination: demonstrationorg/dhi-node-anna
+    tag_definition_id: node/alpine-3.24/26-dev
+
+platforms:
+  - linux/amd64
+  - linux/arm64
+
+contents:
+  packages:
+    - curl
+    - wget
+
+# Dev variants run as root so build steps can install packages.
+accounts:
+  root: true
+  runs-as: root
+  users:
+    - name: node
+      uid: 1000
+  groups:
+    - name: node
+      gid: 1000
+
+cmd:
+  - node
