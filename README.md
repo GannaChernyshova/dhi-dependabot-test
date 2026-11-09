@@ -13,7 +13,7 @@ A small Node app built three ways, to compare Docker Hardened Images (DHI) with 
   [`dhictl`](https://github.com/docker-hardened-images/dhictl/releases) v0.0.13 or later.
 
 ```bash
-docker login    # Docker Hub account with access to demonstrationorg
+docker login    # Docker Hub account with DHI access
 ```
 
 ```
