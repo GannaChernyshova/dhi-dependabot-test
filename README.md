@@ -27,7 +27,21 @@ customization/customization.yaml   DHI customization definition
 Each Dockerfile has a `build` stage, which runs `npm install`, and a `runtime` stage, which runs `server.js` on
 port 3000. The server reports which base image it runs on. Build from the repo root.
 
-## 1. Compare DOI and DHI
+
+## 1. Dependabot
+
+`.github/dependabot.yml` checks `dhi/` and `customization/` daily. When Docker Hub has a newer tag or digest for a
+`FROM` line, it opens a PR. `.github/workflows/build.yml` builds all three Dockerfiles on every push and PR.
+
+Add both secrets under **Actions** and **Dependabot** (Settings > Secrets and variables). Dependabot PRs only read
+the Dependabot store.
+
+| Secret | Value |
+| --- | --- |
+| `DHI_DOCKERHUB_USERNAME` | Docker Hub user with access to `your_DHI_org` |
+| `DHI_DOCKERHUB_TOKEN` | Access token for that user, also used as `DHI_API_TOKEN` |
+
+## 2. Compare DOI and DHI
 
 | Dockerfile | Build stage | Runtime stage |
 | --- | --- | --- |
@@ -46,7 +60,7 @@ A local build doesn't carry DHI's VEX statements, so Scout may list CVEs that DH
 To see DHI's own assessment, scan the base image from the registry:
 `docker scout cves demonstrationorg/dhi-node-anna:26-alpine3.24`.
 
-## 2. Customize a DHI image
+## 3. Customize a DHI image
 
 `customization/customization.yaml` adds `curl` and `wget` to `26-alpine3.24-dev` and publishes the result as
 `dhi-node-anna:26-alpine-dev_tools`. `customization/Dockerfile` builds on it, with no `apk` step.
@@ -68,16 +82,3 @@ dhictl customization build list --org demonstrationorg cz_08j7wqirdnx2k
 | --- | --- | --- |
 | DHI Customization Edit | push to `main` changing the yaml, or manual | `dhictl customization edit` |
 | DHI Customization Recreate | manual | deletes the customization, creates it again, commits the new `id` |
-
-## 3. Dependabot
-
-`.github/dependabot.yml` checks `dhi/` and `customization/` daily. When Docker Hub has a newer tag or digest for a
-`FROM` line, it opens a PR. `.github/workflows/build.yml` builds all three Dockerfiles on every push and PR.
-
-Add both secrets under **Actions** and **Dependabot** (Settings > Secrets and variables). Dependabot PRs only read
-the Dependabot store.
-
-| Secret | Value |
-| --- | --- |
-| `DHI_DOCKERHUB_USERNAME` | Docker Hub user with access to `demonstrationorg` |
-| `DHI_DOCKERHUB_TOKEN` | Access token for that user, also used as `DHI_API_TOKEN` |
