@@ -1,17 +1,17 @@
 # Docker Hardened Images - Customization
-# dhi/node 26-alpine3.24-dev - dev variant with curl and wget
+# dhi/node 26-debian13-dev - dev variant with curl and wget
 #
 # Template: envsubst fills in the DHI_ORG and DHI_CUSTOMIZATION_ID placeholders
 # (from environment variables locally, repository variables in CI).
 # Tags created from this customization get the suffix _tools,
-# e.g. dhi-node-anna:26-alpine-dev_tools
+# e.g. dhi-node-anna:26-debian13-dev_tools
 
 name: tools
 id: ${DHI_CUSTOMIZATION_ID}
 
 targets:
   - destination: ${DHI_ORG}/dhi-node-anna
-    tag_definition_id: node/alpine-3.24/26-dev
+    tag_definition_id: node/debian-13/26-dev
 
 platforms:
   - linux/amd64

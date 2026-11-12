@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
 #
 # Option 0: Docker Official Image (DOI) node on both stages, for comparison
-# with the DHI variants. curl and wget are installed with apk in the build stage.
+# with the DHI variants. curl and wget are installed with apt-get in the build stage.
 
 # ---- build stage --------------------------------------------------------
-FROM node:26-alpine3.24 AS build
+FROM node:26-trixie AS build
 
-RUN apk add --no-cache curl wget
+RUN apt-get update && apt-get install -y --no-install-recommends curl wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --chmod=644 app/package.json ./
@@ -21,6 +21,5 @@ COPY --from=build /app ./
 
 ENV BASE_IMAGE="DOI base image"
 
-USER node
 EXPOSE 3000
 CMD ["node", "server.js"]
