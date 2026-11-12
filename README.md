@@ -5,7 +5,7 @@ A small Node app built three ways, to compare Docker Hardened Images (DHI) with 
 ## Before you start
 
 - **DHI** are minimal, low-CVE images maintained by Docker. Each comes in two variants:
-  - **`-dev`**: has a shell and a package manager (`apk`). Use it to build.
+  - **`-dev`**: has a shell and a package manager (`apt-get`). Use it to build.
   - **runtime**: no shell or package manager. Use it to run.
 - **Mirror**: your org's copy of DHI images on Docker Hub, here `demonstrationorg/dhi-node-anna`.
 - **Customization**: DHI builds a copy of an image with extra packages, published as a new tag in the mirror.
@@ -52,8 +52,8 @@ Also add these repository **variables** (same page, Variables tab):
 
 | Dockerfile | Build stage | Runtime stage |
 | --- | --- | --- |
-| `doi/Dockerfile` | `node:26-alpine3.24` + `apk add curl wget` | same as build stage |
-| `dhi/Dockerfile` | `dhi-node-anna:26-alpine3.24-dev` + `apk add curl wget` | `dhi-node-anna:26-alpine3.24` |
+| `doi/Dockerfile` | `node:26-trixie` + `apt-get install curl wget` | same as build stage |
+| `dhi/Dockerfile` | `dhi-node-anna:26-debian13-dev` + `apt-get install curl wget` | `dhi-node-anna:26-debian13` |
 
 ```bash
 docker buildx build --provenance=true --sbom=true -f doi/Dockerfile -t demo-node:doi .
@@ -65,12 +65,12 @@ docker run --rm -p 3000:3000 demo-node:dhi    # curl localhost:3000
 
 A local build doesn't carry DHI's VEX statements, so Scout may list CVEs that DHI marks as not affecting the image.
 To see DHI's own assessment, scan the base image from the registry:
-`docker scout cves demonstrationorg/dhi-node-anna:26-alpine3.24`.
+`docker scout cves demonstrationorg/dhi-node-anna:26-debian13`.
 
 ## 3. Customize a DHI image
 
-`customization/customization.yaml` adds `curl` and `wget` to `26-alpine3.24-dev` and publishes the result as
-`dhi-node-anna:26-alpine-dev_tools`. `customization/Dockerfile` builds on it, with no `apk` step.
+`customization/customization.yaml` adds `curl` and `wget` to `26-debian13-dev` and publishes the result as
+`dhi-node-anna:26-debian13-dev_tools`. `customization/Dockerfile` builds on it, with no `apt-get` step.
 
 ```bash
 docker buildx build --provenance=true --sbom=true -f customization/Dockerfile -t demo-node:customized .
