@@ -4,7 +4,7 @@
 # build stage.
 
 # ---- build stage --------------------------------------------------------
-FROM demonstrationorg/dhi-node-anna:26-alpine3.24-dev@sha256:3e61a81f5d83780aff01cb2d8f2251698bf3fe7d522bef71a9656fa93333b504 AS build
+FROM demonstrationorg/dhi-node-anna:26-alpine3.24-dev@sha256:b1968ad63fbbcbbea96cf552a1ccd13f60034d42606e06122513f4fd3f971737 AS build
 
 RUN apk add --no-cache curl wget
 
